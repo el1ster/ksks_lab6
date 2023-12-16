@@ -2,6 +2,10 @@ import socket
 import tkinter as tk
 import threading
 import time
+import math
+from PIL import Image, ImageTk
+from tkinter import PhotoImage
+import random
 
 
 def display_received_text(text):
@@ -126,6 +130,25 @@ def receive_data():
     def display_window_size():
         size = f"Window Size: {root.winfo_width()}x{root.winfo_height()}"
         draw_text(200, 50, "black", 14, len(size), size)
+
+    def rotate_point(x, y, origin_x, origin_y, angle):
+        angle_rad = math.radians(angle)
+        nx = origin_x + math.cos(angle_rad) * (x - origin_x) - math.sin(angle_rad) * (y - origin_y)
+        ny = origin_y + math.sin(angle_rad) * (x - origin_x) + math.cos(angle_rad) * (y - origin_y)
+        return nx, ny
+
+    def rotate_canvas(canvas, angle):
+        items = canvas.find_all()
+        width = canvas.winfo_width()
+        height = canvas.winfo_height()
+
+        for item in items:
+            coords = canvas.coords(item)
+            new_coords = []
+            for i in range(0, len(coords), 2):
+                x, y = rotate_point(coords[i], coords[i + 1], width / 2, height / 2, angle)
+                new_coords.extend([x, y])
+            canvas.coords(item, *new_coords)
 
     while True:
         data, client_address = server_socket.recvfrom(1024)
